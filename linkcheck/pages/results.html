@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LinkCheck — Full Report</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-hover: #1D4ED8;
+      --bg: #FFFFFF;
+      --bg-secondary: #F5F5F5;
+      --text-primary: #111111;
+      --text-secondary: #6B7280;
+      --border: #E5E7EB;
+      --success: #16A34A;
+      --warning: #D97706;
+      --error: #DC2626;
+      --radius: 10px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #FAFAFA;
+      color: var(--text-primary);
+      line-height: 1.5;
+      padding: 40px 20px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .page-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .page-header h1 {
+      font-size: 22px;
+      font-weight: 700;
+    }
+    .page-header p {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #EFF6FF;
+      border-radius: var(--radius);
+    }
+    .card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .summary-item {
+      padding: 14px;
+      background: var(--bg-secondary);
+      border-radius: var(--radius);
+      text-align: center;
+    }
+    .summary-item .num {
+      font-size: 24px;
+      font-weight: 700;
+      display: block;
+    }
+    .summary-item .label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-weight: 600;
+      margin-top: 2px;
+    }
+    .summary-item.working .num { color: var(--success); }
+    .summary-item.redirect .num { color: var(--warning); }
+    .summary-item.broken .num { color: var(--error); }
+    .summary-item.unknown .num { color: var(--text-secondary); }
+    .score-big {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px 24px;
+      background: #EFF6FF;
+      border: 1px solid #BFDBFE;
+      border-radius: var(--radius);
+    }
+    .score-big .num {
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--primary);
+      line-height: 1;
+    }
+    .score-big .label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--primary);
+      margin-top: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .meta-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 13px;
+    }
+    th {
+      text-align: left;
+      padding: 10px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      border-bottom: 2px solid var(--border);
+      background: var(--bg-secondary);
+    }
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    tr:hover td {
+      background: #FAFAFA;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .badge.working { background: #DCFCE7; color: #166534; }
+    .badge.redirect { background: #FEF3C7; color: #92400E; }
+    .badge.broken { background: #FEE2E2; color: #991B1B; }
+    .badge.unknown { background: #F3F4F6; color: #4B5563; }
+    .url-cell {
+      max-width: 320px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 600;
+    }
+    .anchor-cell {
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--text-secondary);
+    }
+    .empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-secondary);
+    }
+    .empty h2 {
+      color: var(--text-primary);
+      font-size: 16px;
+      margin-bottom: 6px;
+    }
+    .export-bar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 9px 16px;
+      border-radius: var(--radius);
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-secondary {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+  <div class="page-header">
+    <div class="brand">
+      <div class="logo">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+        </svg>
+      </div>
+      <div>
+        <h1>LinkCheck Report</h1>
+        <p>Full scan results</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="content">
+    <div class="empty">
+      <h2>No scan data</h2>
+      <p>Run a scan from the LinkCheck extension popup first.</p>
+    </div>
+  </div>
+
+  <script>
+    (async () => {
+      const storage = await chrome.storage.local.get(['linkcheck_results', 'linkcheck_history']);
+      const history = storage.linkcheck_history;
+      const results = storage.linkcheck_results;
+
+      if (!history || !results || results.length === 0) {
+        return;
+      }
+
+      const container = document.getElementById('content');
+      const date = new Date(history.timestamp);
+      const timeStr = date.toLocaleString();
+
+      const working = results.filter(r => r.status === 'working').length;
+      const redirect = results.filter(r => r.status === 'redirect').length;
+      const broken = results.filter(r => r.status === 'broken').length;
+      const unknown = results.filter(r => r.status === 'unknown' || r.status === 'timeout').length;
+
+      container.innerHTML = `
+        <div class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+            <div>
+              <div style="font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;">Website</div>
+              <div style="font-size:20px;font-weight:700;margin-top:4px;">${escapeHtml(history.domain)}</div>
+              <div class="meta-row">
+                <span>${history.total} links scanned</span>
+                <span>•</span>
+                <span>${timeStr}</span>
+              </div>
+            </div>
+            <div class="score-big">
+              <span class="num">${history.score}</span>
+              <span class="label">Link Health Score</span>
+            </div>
+          </div>
+          <div class="summary-grid">
+            <div class="summary-item working">
+              <span class="num">${working}</span>
+              <span class="label">Working</span>
+            </div>
+            <div class="summary-item redirect">
+              <span class="num">${redirect}</span>
+              <span class="label">Redirects</span>
+            </div>
+            <div class="summary-item broken">
+              <span class="num">${broken}</span>
+              <span class="label">Broken</span>
+            </div>
+            <div class="summary-item unknown">
+              <span class="num">${unknown}</span>
+              <span class="label">Unable to Verify</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="export-bar">
+          <button class="btn btn-primary" onclick="exportCSV()">Export CSV</button>
+          <button class="btn btn-secondary" onclick="window.print()">Print Report</button>
+        </div>
+
+        <div class="card">
+          <h3 style="font-size:14px;font-weight:700;margin-bottom:12px;">All Results</h3>
+          <div style="overflow-x:auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Status</th>
+                  <th>URL</th>
+                  <th>Anchor Text</th>
+                  <th>Type</th>
+                  <th>Code</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${results.map(r => `
+                  <tr>
+                    <td><span class="badge ${r.status}">${statusLabel(r.status)}</span></td>
+                    <td class="url-cell" title="${escapeHtml(r.url)}">${escapeHtml(r.url)}</td>
+                    <td class="anchor-cell">${escapeHtml(r.anchorText || '')}</td>
+                    <td>${r.isInternal ? 'Internal' : 'External'}</td>
+                    <td>${r.code || '—'}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+
+      window._results = results;
+      window._history = history;
+    })();
+
+    function statusLabel(status) {
+      const map = { working: 'Working', redirect: 'Redirect', broken: 'Broken', unknown: 'Unable', timeout: 'Timeout', pending: 'Checking' };
+      return map[status] || status;
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function exportCSV() {
+      if (!window._results) return;
+      const headers = ['URL', 'Anchor Text', 'Status', 'HTTP Status', 'Type'];
+      const rows = window._results.map(r => [
+        r.url,
+        (r.anchorText || '').replace(/"/g, '""'),
+        r.status,
+        r.code || '',
+        r.isInternal ? 'Internal' : 'External'
+      ]);
+      const csv = [headers, ...rows].map(r => r.map(c => \`"${c}"\`).join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = \`linkcheck-${window._history.domain}-${new Date().toISOString().slice(0,10)}.csv\`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>

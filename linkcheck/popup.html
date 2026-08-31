@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LinkCheck</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div id="app">
+    <!-- ==================== HEADER ==================== -->
+    <header class="header">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>LinkCheck</h1>
+          <p>Find broken links in seconds.</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="historyBtn" class="icon-btn" aria-label="Scan history" title="History">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </button>
+        <button id="settingsBtn" class="icon-btn" aria-label="Settings" title="Settings">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- ==================== UNSUPPORTED ==================== -->
+    <div id="unsupportedState" class="state hidden">
+      <div class="empty-state">
+        <div class="empty-icon error" aria-hidden="true">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+          </svg>
+        </div>
+        <h2>Unsupported page</h2>
+        <p>This page cannot be scanned. Browser internal pages cannot be analyzed.</p>
+      </div>
+    </div>
+
+    <!-- ==================== READY ==================== -->
+    <div id="readyState" class="state hidden">
+      <div class="domain-card">
+        <span class="domain-label">Scanning</span>
+        <h2 id="domainName" class="domain-name">example.com</h2>
+      </div>
+      <div class="empty-state">
+        <div class="empty-icon" aria-hidden="true">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+          </svg>
+        </div>
+        <h3>Check your website for broken links.</h3>
+        <p>Scan the current webpage to get started.</p>
+        <button id="startScanBtn" class="btn btn-primary">Scan Page</button>
+      </div>
+    </div>
+
+    <!-- ==================== SCANNING ==================== -->
+    <div id="scanningState" class="state hidden">
+      <div class="progress-card">
+        <div class="progress-header">
+          <h3>Checking links...</h3>
+          <span id="progressPercent" class="progress-percent">0%</span>
+        </div>
+        <div class="progress-bar-bg" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Scan progress">
+          <div id="progressBar" class="progress-bar-fill" style="width: 0%"></div>
+        </div>
+        <div class="progress-meta">
+          <span id="progressCount">0 / 0 links checked</span>
+          <span id="currentUrl" class="current-url">Preparing...</span>
+        </div>
+        <div class="progress-stats">
+          <div class="stat working">
+            <span class="stat-dot" aria-hidden="true"></span>
+            <span id="statWorking" class="stat-num">0</span>
+            <span class="stat-name">Working</span>
+          </div>
+          <div class="stat broken">
+            <span class="stat-dot" aria-hidden="true"></span>
+            <span id="statBroken" class="stat-num">0</span>
+            <span class="stat-name">Broken</span>
+          </div>
+          <div class="stat redirect">
+            <span class="stat-dot" aria-hidden="true"></span>
+            <span id="statRedirect" class="stat-num">0</span>
+            <span class="stat-name">Redirect</span>
+          </div>
+          <div class="stat checking">
+            <span class="stat-dot" aria-hidden="true"></span>
+            <span id="statChecking" class="stat-num">0</span>
+            <span class="stat-name">Checking</span>
+          </div>
+        </div>
+      </div>
+      <button id="cancelScanBtn" class="btn btn-secondary btn-full">Cancel Scan</button>
+    </div>
+
+    <!-- ==================== RESULTS ==================== -->
+    <div id="resultsState" class="state hidden">
+      <!-- Summary -->
+      <div class="summary-card">
+        <div class="summary-header">
+          <div class="summary-title-group">
+            <span class="summary-label">Website Health</span>
+            <h2 id="summaryDomain" class="summary-domain">example.com</h2>
+          </div>
+          <div class="health-score" aria-label="Link Health Score">
+            <span id="healthScore" class="score-value">—</span>
+            <span class="score-label">Link Health</span>
+          </div>
+        </div>
+        <div class="summary-stats">
+          <div class="summary-stat working">
+            <span class="stat-icon" aria-hidden="true">✓</span>
+            <span id="sumWorking" class="stat-count">0</span>
+            <span class="stat-name">Working</span>
+          </div>
+          <div class="summary-stat redirect">
+            <span class="stat-icon" aria-hidden="true">↗</span>
+            <span id="sumRedirect" class="stat-count">0</span>
+            <span class="stat-name">Redirects</span>
+          </div>
+          <div class="summary-stat broken">
+            <span class="stat-icon" aria-hidden="true">✕</span>
+            <span id="sumBroken" class="stat-count">0</span>
+            <span class="stat-name">Broken</span>
+          </div>
+          <div class="summary-stat unknown">
+            <span class="stat-icon" aria-hidden="true">?</span>
+            <span id="sumUnknown" class="stat-count">0</span>
+            <span class="stat-name">Unable</span>
+          </div>
+        </div>
+        <div class="summary-meta">
+          <span id="totalLinks">0 Links</span>
+          <span class="sep">•</span>
+          <span id="uniqueLinks">0 Unique</span>
+        </div>
+      </div>
+
+      <!-- Warnings -->
+      <div id="limitWarning" class="warning-banner hidden">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span></span>
+      </div>
+      <div id="ignoredBadge" class="info-badge hidden"></div>
+
+      <!-- Controls -->
+      <div class="controls">
+        <div class="search-box">
+          <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="searchInput" placeholder="Search links..." aria-label="Search links" autocomplete="off">
+          <button id="clearSearchBtn" class="clear-search hidden" aria-label="Clear search">×</button>
+        </div>
+
+        <div class="filter-sort-row">
+          <div class="filter-tabs" role="tablist" aria-label="Filter results">
+            <button class="filter-tab active" data-filter="all" role="tab" aria-selected="true">All <span id="countAll">0</span></button>
+            <button class="filter-tab" data-filter="working" role="tab" aria-selected="false">Working <span id="countWorking">0</span></button>
+            <button class="filter-tab" data-filter="broken" role="tab" aria-selected="false">Broken <span id="countBroken">0</span></button>
+            <button class="filter-tab" data-filter="redirect" role="tab" aria-selected="false">Redirects <span id="countRedirect">0</span></button>
+            <button class="filter-tab" data-filter="unknown" role="tab" aria-selected="false">Unable <span id="countUnknown">0</span></button>
+          </div>
+          <div class="sort-box">
+            <label for="sortSelect" class="visually-hidden">Sort by</label>
+            <select id="sortSelect" aria-label="Sort results">
+              <option value="status">Sort: Broken First</option>
+              <option value="url">Sort: URL</option>
+              <option value="anchor">Sort: Anchor Text</option>
+              <option value="code">Sort: Status Code</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results List -->
+      <div id="resultsList" class="results-list" role="list" aria-label="Link results"></div>
+
+      <!-- Empty results -->
+      <div id="noResults" class="empty-state small hidden">
+        <h3>No matching links</h3>
+        <p>Try another URL, domain, or anchor text.</p>
+      </div>
+
+      <!-- Actions -->
+      <div class="actions-bar">
+        <button id="rescanBtn" class="btn btn-secondary">Rescan</button>
+        <button id="copySummaryBtn" class="btn btn-secondary">Copy Summary</button>
+        <button id="exportBtn" class="btn btn-primary">Export CSV</button>
+      </div>
+    </div>
+
+    <!-- ==================== SETTINGS PANEL ==================== -->
+    <div id="settingsPanel" class="panel hidden">
+      <div class="panel-header">
+        <button id="backFromSettings" class="icon-btn" aria-label="Back to results">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        </button>
+        <h2>Settings</h2>
+      </div>
+      <div class="panel-body">
+        <div class="settings-section">
+          <h3>Scan Settings</h3>
+          <label class="field">
+            <span class="field-label">Maximum links to scan</span>
+            <input type="number" id="settingMaxLinks" class="field-input" min="10" max="2000" value="500">
+          </label>
+          <label class="field">
+            <span class="field-label">Request timeout (ms)</span>
+            <input type="number" id="settingTimeout" class="field-input" min="1000" max="60000" value="10000" step="1000">
+          </label>
+          <label class="field checkbox">
+            <input type="checkbox" id="settingExternal" checked>
+            <span class="checkmark"></span>
+            <span class="field-label">Include external links</span>
+          </label>
+          <label class="field checkbox">
+            <input type="checkbox" id="settingInternal" checked>
+            <span class="checkmark"></span>
+            <span class="field-label">Include internal links</span>
+          </label>
+        </div>
+        <div class="settings-section">
+          <h3>Display</h3>
+          <label class="field checkbox">
+            <input type="checkbox" id="settingCompact">
+            <span class="checkmark"></span>
+            <span class="field-label">Compact mode</span>
+          </label>
+          <label class="field checkbox">
+            <input type="checkbox" id="settingRemember" checked>
+            <span class="checkmark"></span>
+            <span class="field-label">Remember latest scan</span>
+          </label>
+        </div>
+      </div>
+      <div class="panel-footer">
+        <button id="saveSettingsBtn" class="btn btn-primary btn-full">Save Settings</button>
+      </div>
+    </div>
+
+    <!-- ==================== HISTORY PANEL ==================== -->
+    <div id="historyPanel" class="panel hidden">
+      <div class="panel-header">
+        <button id="backFromHistory" class="icon-btn" aria-label="Back to results">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        </button>
+        <h2>Last Scan</h2>
+      </div>
+      <div id="historyContent" class="panel-body"></div>
+    </div>
+
+    <!-- ==================== DETAIL MODAL ==================== -->
+    <div id="detailModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+      <div class="modal-overlay"></div>
+      <div class="modal-content" role="document">
+        <div class="modal-header">
+          <h3 id="detailTitle">Link Details</h3>
+          <button id="closeDetailBtn" class="icon-btn" aria-label="Close details">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="detail-row">
+            <span class="detail-label">URL</span>
+            <div class="detail-value url-row">
+              <span id="detailUrl" class="url-text"></span>
+              <button id="copyDetailUrlBtn" class="icon-btn small" aria-label="Copy URL" title="Copy URL">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Anchor Text</span>
+            <span id="detailAnchor" class="detail-value"></span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Type</span>
+            <span id="detailType" class="detail-value"></span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Status</span>
+            <span id="detailStatus" class="detail-value"></span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Response</span>
+            <span id="detailCode" class="detail-value"></span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Found In</span>
+            <span id="detailLocation" class="detail-value"></span>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="openLinkBtn" class="btn btn-primary btn-full">Open Link</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== TOAST ==================== -->
+    <div id="toast" class="toast hidden" role="status" aria-live="polite">URL copied</div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
